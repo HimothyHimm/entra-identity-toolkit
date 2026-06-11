@@ -1,0 +1,19 @@
+FirstName,LastName,JobTitle,Department,UsageLocation,Manager
+Alice,Nguyen,IT Manager,IT,US,
+Brian,Carter,Help Desk Technician,IT,US,alice.nguyen
+Carla,Mendes,Systems Administrator,IT,US,alice.nguyen
+David,Kim,Sales Director,Sales,US,
+Emily,Zhang,Account Executive,Sales,US,david.kim
+Frank,Owusu,Account Executive,Sales,US,david.kim
+Grace,Patel,Marketing Manager,Marketing,US,
+Henry,Lopez,Content Strategist,Marketing,US,grace.patel
+Isabel,Rossi,HR Director,HR,US,
+Jack,Thompson,Recruiter,HR,US,isabel.rossi
+Karen,White,Finance Manager,Finance,US,
+Liam,Murphy,Accountant,Finance,US,karen.white
+Maria,Garcia,Engineering Lead,Engineering,US,
+Noah,Bennett,Software Engineer,Engineering,US,maria.garcia
+Olivia,Reed,Software Engineer,Engineering,US,maria.garcia
+Paul,Adams,DevOps Engineer,Engineering,US,maria.garcia
+Quinn,Foster,Operations Manager,Operations,US,
+Rachel,Green,Operations Analyst,Operations,US,quinn.foster
