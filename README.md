@@ -1,5 +1,5 @@
 # entra-identity-toolkit
-
+![Architecture](docs/architecture.png)
 PowerShell automation for Microsoft Entra ID identity administration, built on the
 Microsoft Graph API. Provisions users, manages department groups and licenses, and
 reports on the directory — the kind of tooling an identity admin actually wants
@@ -15,7 +15,7 @@ identity engineering.
 | --- | --- |
 | `scripts/New-DemoUsers.ps1` | CSV-driven user onboarding: creates users with full attributes and a manager hierarchy. Idempotent, `-WhatIf` dry run, auto-resolves the tenant domain. Also seeds the demo population the rest of the toolkit manages. |
 | `scripts/New-DepartmentGroups.ps1` | Creates one security group per department and bulk-adds members by their Department attribute. Idempotent, `-WhatIf`. |
-| `scripts/Set-UserLicenses.ps1` | Resolves a SKU part number to its SkuId, ensures `usageLocation` is set, and assigns the license. Idempotent, `-WhatIf`, skips already-licensed users. |
+Idempotent, `-WhatIf`, skips already-licensed users. |
 | `scripts/Get-DirectoryReport.ps1` | Generates an org-chart + account inventory + license report, exported to CSV and a self-contained HTML file. |
 
 ## Approach

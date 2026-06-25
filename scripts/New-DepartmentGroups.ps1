@@ -8,6 +8,9 @@
     attribute, ensures a security group exists for each department, and adds the
     matching users as members.
 
+    Connects via Connect-ToolkitGraph.ps1 (app-only if ClientId+thumbprint
+    supplied, interactive otherwise).
+
     Idempotent  - existing groups are reused; users already in a group are skipped.
     Dry run     - supports -WhatIf to preview without changing anything.
 
@@ -20,16 +23,39 @@
 .PARAMETER GroupPrefix
     Prefix for the group display name. Default: "Department - ".
 
+.PARAMETER TenantId
+    Entra tenant to connect to. Defaults to this toolkit's tenant.
+
+.PARAMETER ClientId
+    App (client) ID of the toolkit's app registration. Supply with
+    -CertificateThumbprint to run unattended (app-only). Omit for interactive.
+
+.PARAMETER CertificateThumbprint
+    Thumbprint of the signing certificate in CurrentUser\My (app-only auth).
+
 .EXAMPLE
     .\New-DepartmentGroups.ps1 -WhatIf
     .\New-DepartmentGroups.ps1
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    [string]$GroupPrefix = "Department - "
+    [string]$GroupPrefix = "Department - ",
+
+    [string]$TenantId = "ec5f5592-1d61-4f21-a7f9-3a49c1f78a58",
+
+    [string]$ClientId,
+
+    [string]$CertificateThumbprint
 )
 
 $ErrorActionPreference = 'Stop'
+
+# --- Connect (app-only if ClientId+thumbprint supplied, otherwise interactive) ---
+. "$PSScriptRoot\Connect-ToolkitGraph.ps1" `
+    -TenantId $TenantId `
+    -ClientId $ClientId `
+    -CertificateThumbprint $CertificateThumbprint `
+    -Scopes @('Group.ReadWrite.All','User.Read.All')
 
 function Get-ExistingGroup {
     param([string]$MailNickname)

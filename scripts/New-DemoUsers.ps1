@@ -4,7 +4,8 @@
 
 .DESCRIPTION
     Reads a CSV of users and creates each one in Entra ID via Microsoft Graph.
-      - Connects with least-privilege scope (User.ReadWrite.All), pinned to the org tenant.
+      - Connects via Connect-ToolkitGraph.ps1 (app-only if ClientId+thumbprint
+        supplied, interactive otherwise), pinned to the org tenant.
       - Resolves the tenant's default verified domain automatically (override with -Domain).
       - Builds userPrincipalName and mailNickname as first.last@<domain>.
       - Sets a random strong temporary password with force-change at next sign-in.
@@ -26,6 +27,13 @@
 .PARAMETER Domain
     UPN domain. Defaults to the tenant's default verified domain.
 
+.PARAMETER ClientId
+    App (client) ID of the toolkit's app registration. Supply with
+    -CertificateThumbprint to run unattended (app-only). Omit for interactive.
+
+.PARAMETER CertificateThumbprint
+    Thumbprint of the signing certificate in CurrentUser\My (app-only auth).
+
 .EXAMPLE
     .\New-DemoUsers.ps1 -CsvPath ..\data\sample-users.csv
 
@@ -41,25 +49,21 @@ param(
 
     [string]$TenantId = "ec5f5592-1d61-4f21-a7f9-3a49c1f78a58",
 
-    [string]$Domain
+    [string]$Domain,
+
+    [string]$ClientId,
+
+    [string]$CertificateThumbprint
 )
 
 $ErrorActionPreference = 'Stop'
 
-# --- Permissions this script needs ---
-$requiredScopes = @('User.ReadWrite.All')
-
-# --- Ensure we are connected to the right tenant with the right scopes ---
-$context = Get-MgContext
-$needConnect = $true
-if ($context -and $context.TenantId -eq $TenantId) {
-    $missing = $requiredScopes | Where-Object { $_ -notin $context.Scopes }
-    if (-not $missing) { $needConnect = $false }
-}
-if ($needConnect) {
-    Write-Host "Connecting to Microsoft Graph (tenant $TenantId)..." -ForegroundColor Cyan
-    Connect-MgGraph -TenantId $TenantId -Scopes $requiredScopes | Out-Null
-}
+# --- Connect (app-only if ClientId+thumbprint supplied, otherwise interactive) ---
+. "$PSScriptRoot\Connect-ToolkitGraph.ps1" `
+    -TenantId $TenantId `
+    -ClientId $ClientId `
+    -CertificateThumbprint $CertificateThumbprint `
+    -Scopes @('User.ReadWrite.All')
 
 # --- Resolve the UPN domain from the tenant if not supplied ---
 if (-not $Domain) {

@@ -9,6 +9,9 @@
     department headcount and writes a timestamped CSV and a self-contained HTML
     report to .\reports.
 
+    Connects via Connect-ToolkitGraph.ps1 (app-only if ClientId+thumbprint
+    supplied, interactive otherwise) with read-only scopes.
+
     Uses raw Graph (Invoke-MgGraphRequest) throughout. The manager relationship
     is read via the $expand query that proved correct in Stage 1, because the
     SDK's *Manager cmdlets are unreliable in this environment.
@@ -16,16 +19,42 @@
     Last sign-in (signInActivity) is intentionally omitted: it requires Entra ID
     P1/P2. This report is designed to run on the free tier.
 
+.PARAMETER OutputDir
+    Folder for the CSV and HTML output. Defaults to .\reports.
+
+.PARAMETER TenantId
+    Entra tenant to connect to. Defaults to this toolkit's tenant.
+
+.PARAMETER ClientId
+    App (client) ID of the toolkit's app registration. Supply with
+    -CertificateThumbprint to run unattended (app-only). Omit for interactive.
+
+.PARAMETER CertificateThumbprint
+    Thumbprint of the signing certificate in CurrentUser\My (app-only auth).
+
 .EXAMPLE
     .\Get-DirectoryReport.ps1
     .\Get-DirectoryReport.ps1 -OutputDir .\reports
 #>
 [CmdletBinding()]
 param(
-    [string]$OutputDir = ".\reports"
+    [string]$OutputDir = ".\reports",
+
+    [string]$TenantId = "ec5f5592-1d61-4f21-a7f9-3a49c1f78a58",
+
+    [string]$ClientId,
+
+    [string]$CertificateThumbprint
 )
 
 $ErrorActionPreference = 'Stop'
+
+# --- Connect (app-only if ClientId+thumbprint supplied, otherwise interactive) ---
+. "$PSScriptRoot\Connect-ToolkitGraph.ps1" `
+    -TenantId $TenantId `
+    -ClientId $ClientId `
+    -CertificateThumbprint $CertificateThumbprint `
+    -Scopes @('User.Read.All','Organization.Read.All')
 
 # --- Pull users, manager expanded inline (raw Graph - the layer we trust) -----
 $select = "displayName,userPrincipalName,department,jobTitle,accountEnabled,createdDateTime,assignedLicenses"
